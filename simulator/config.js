@@ -11,7 +11,7 @@ module.exports = {
     
     port: Number(process.env.PORT || 3002),
     
-    webRoot: path.resolve(__dirname, "./web"),
+    webRoot: path.resolve(__dirname, "./public"),
 
     auth: {
         

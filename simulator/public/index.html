@@ -1,0 +1,60 @@
+<!doctype html><html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Device TFT Simulator</title>
+        
+        <style>
+            body{font:15px system-ui;background:#121923;color:#e7edf5;margin:0;padding:24px}
+            main{max-width:850px;margin:auto}
+            canvas{width:100%;max-width:720px;background:black;border:10px solid #344151;border-radius:12px;box-sizing:border-box}
+            label{display:block;margin:12px 0}
+            input{padding:6px}input[type=range]{width:260px;max-width:90%}
+            textarea{box-sizing:border-box;width:100%;height:290px;background:#202b3a;color:#fff;padding:12px}
+            button{padding:9px 13px;cursor:pointer;margin:4px}
+            section{background:#1b2532;padding:16px;border-radius:10px;margin:16px 0}
+            #error{color:#ff9797;white-space:pre-wrap}
+        </style>
+            
+        </head>
+        
+    <body>
+        <main>
+            <h1>Device TFT Simulator</h1>
+            <p>Un seul Device ESP32 virtuel · WebSocket vers le Hub · Canvas HTML5</p>
+            <section>
+                <h2>Paramètres du simulateur</h2>
+                <label>Adresse MAC virtuelle <input id="mac" placeholder="02:00:00:00:00:01"></label>
+                <label>Adresse WebSocket du Hub <input id="hubUrl" size="38" placeholder="ws://127.0.0.1:8080"></label>
+                <label><input type="checkbox" id="autoConnect"> Connexion automatique</label>
+                <button id="saveSettings">Enregistrer les paramètres</button>
+                <p>Token : <span id="tokenStatus"></span></p>
+                <input type="password" id="token" autocomplete="off" placeholder="Token d'appairage">
+                <button id="saveToken">Enregistrer le token</button>
+                <button id="clearToken">Effacer le token</button>
+                <p>Connexion : <strong id="status">disconnected</strong></p>
+                <button id="connect">Connecter</button>
+                <button id="disconnect">Déconnecter</button>
+                <p id="error"></p>
+            </section>
+            
+            <section>
+                <h2>Écran virtuel</h2>
+                <canvas id="display" width="480" height="320"></canvas>
+                <label>Pression d'huile : <output id="oilValue">3.2</output> bar<br><input id="oil" type="range" min="0" max="7" step="0.1" value="3.2"></label>
+                <label>Température moteur : <output id="tempValue">87</output> °C<br><input id="temp" type="range" min="40" max="120" step="1" value="87"></label>
+            </section>
+            
+            <section>
+                <h2>Template JSON</h2><textarea id="templateInfo" spellcheck="false"></textarea>
+                <p>
+                    <button id="saveTemplate">Enregistrer le template</button>
+                    <button id="reload">Recharger</button>
+                </p>
+            </section>
+        </main>
+        
+        <script type="module" src="/app.js"></script>
+    </body>
+    
+</html>

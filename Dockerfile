@@ -6,10 +6,9 @@ COPY simulator/package*.json ./simulator/
 RUN cd simulator && npm install --save-dev nodemon
 
 COPY simulator ./simulator
-COPY web ./web
 
 WORKDIR /app/simulator
 
-EXPOSE 3000
+EXPOSE 3002
 
 CMD ["npm", "run", "dev"]
