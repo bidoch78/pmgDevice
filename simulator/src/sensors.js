@@ -14,7 +14,7 @@
 //  close(){this.disconnect();this.unsubscribe();this.events.close();}
 // }
 
-export class Configuration {
+export class sensors {
 
     constructor(device) {
 

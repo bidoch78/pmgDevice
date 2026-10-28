@@ -1,7 +1,7 @@
-import { HubConnection } from './HubConnection.js';
-import { Sensors } from './Sensors.js';
-import { Configuration } from './Configuration.js';
-import { DisplayCanvas } from './display/DisplayCanvas.js';
+import { hubConnection } from './hubConnection.js';
+import { sensors } from './sensors.js';
+import { configuration } from './configuration.js';
+import { displayCanvas } from './display/displayCanvas.js';
 
 // import {ConnectionManager} from '../managers/ConnectionManager.js';
 // import {StorageManager} from '../managers/StorageManager.js';
@@ -17,20 +17,25 @@ import { DisplayCanvas } from './display/DisplayCanvas.js';
 //  close(){this.disconnect();this.unsubscribe();this.events.close();}
 // }
 
-export class Device {
+export class device {
 
     constructor() {
-
-        this.sensors = new Sensors(this);
-        this.connection = new HubConnection(this);
-        this.configuration = new Configuration(this);
-        this.displayCanvas = new DisplayCanvas(this);
-
     }
-    
-    Senrors() { return this.sensors; }
-    Connection() { return this.connection; }
-    Configuration() { return this.configuration; }
-    Display() { return this.displayCanvas; }
+
+    destroy() {
+        
+    }
+
+    setSensors(sensors) { this.sensors = sensors; }
+    getSenrors() { return this.sensors; }
+
+    setConnection(conn) { this.connection = conn; }
+    getConnection() { return this.connection; }
+
+    setConfiguration(config) { this.configuration = config; }
+    getConfiguration() { return this.configuration; }
+
+    setDisplay(display) { this.displayCanvas = display; }
+    getDisplay() { return this.displayCanvas; }
 
 }

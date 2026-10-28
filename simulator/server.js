@@ -89,13 +89,12 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-
-
-// //     // ---------- SENSOR API ----------
-// //     if (url.pathname === "/api/sensors" && req.method === "GET") {
-// //         sendJson(res, 200, sensors.update());
-// //         return;
-// //     }
+    // ---------- SENSOR API ----------
+    if (url.pathname === "/api/getdevicedata" && req.method === "PUT") {
+        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
+        res.end(JSON.stringify({ 'mac': '8a:14:a3:39:4d:2e', 'token': '', 'display': { 'round': true, 'width': 480, 'height': 480 }, 'find': true }));
+        return;
+    }
 
 //   if(url.pathname==='/api/events'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive'});res.write(`data: ${JSON.stringify({type:'snapshot',data:{sensors:Object.fromEntries(device.sensors.values),state:device.connection.state}})}\n\n`);clients.add(res);req.on('close',()=>clients.delete(res));return;}
 //   if(url.pathname==='/api/settings'&&req.method==='GET')return send(res,200,{...device.settings,hasToken:!!device.token,connectionState:device.connection.state});

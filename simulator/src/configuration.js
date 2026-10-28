@@ -14,12 +14,14 @@
 //  close(){this.disconnect();this.unsubscribe();this.events.close();}
 // }
 
-export class HubConnection {
+export class configuration {
 
     constructor(device) {
 
         this.device = device;
 
     }
+
+    
 
 }

@@ -14,14 +14,12 @@
 //  close(){this.disconnect();this.unsubscribe();this.events.close();}
 // }
 
-export class Sensors {
+export class hubConnection {
 
     constructor(device) {
 
         this.device = device;
 
     }
-
-    
 
 }
