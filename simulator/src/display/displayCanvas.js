@@ -22,7 +22,50 @@ export class displayCanvas extends display {
         if (!this._canvas) return;
 
         this._ctx = this._canvas.getContext('2d')
-        this.clearDisplay('#0');
+        this.clearDisplay('#000');
+
+    }
+
+    /* simulate day/night */
+    setBrightness(brightness) {
+
+        if (!this._ctx) return;
+        if (!(this._deviceInfo && this._deviceInfo.display)) return;
+
+        // brightness = 0 à 100
+        const alpha = 1 - (brightness / 100);
+
+        if (this._deviceInfo.display.round) {
+
+            this._ctx.save();
+
+            const d = this._deviceInfo.display.width / 2;
+
+            this._ctx.beginPath();
+            this._ctx.arc(d, d, d, 0, Math.PI * 2);
+            this._ctx.clip();
+
+            this._ctx.fillStyle = `rgba(0,0,0,${1 - brightness / 100})`;
+            this._ctx.fillRect(0, 0, d * 2, d * 2);   
+
+            ctx.restore();
+
+        }
+        else {
+            this._ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+            this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+        }
+
+        ctx.save();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.clip();
+
+        this._ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+        this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+        ctx.restore();
 
     }
 

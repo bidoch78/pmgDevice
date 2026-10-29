@@ -29,7 +29,7 @@ export class sensors {
     }
 
     getSensorsUsed() {
-        return [ 'engine.coolant-temp' ];
+        return [ 'engine.coolant-temp', 'env.daynight' ];
         return [ 'engine.coolant-temp', 'engine.airpressure' ];
     }
 

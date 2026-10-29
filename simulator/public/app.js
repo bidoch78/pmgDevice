@@ -274,6 +274,8 @@ setInterval(() => {
         _device.getDisplay().drawArc(cx, cy, 210, start, end, 25, 'round', '#252525');
         _device.getDisplay().drawArc(cx, cy, 210, start, start + sweep * tempValue, 25, 'round', "#e4cd36");
 
+        _device.getDisplay().setBrightness(50);
+
     //console.log("loop");
 
 }, 50);
