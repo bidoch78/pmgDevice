@@ -4,7 +4,7 @@ export class display {
 
     constructor(device) {
 
-        this.device = device;
+        this._device = device;
         this.widgets = [];
         
     }

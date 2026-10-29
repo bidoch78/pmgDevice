@@ -1,5 +1,7 @@
 import { device } from '../src/device.js';
 import { displayCanvas } from '../src/display/displayCanvas.js';
+import { hubConnection } from '../src/hubConnection.js';
+import { sensors } from '../src/sensors.js';
 
 let _device = null;
 
@@ -215,21 +217,24 @@ el('readSettings').addEventListener("click", async () => {
 
     if (deviceInfo.find) {
 
+        el('token').value = deviceInfo.token;
         el('error').textContent = "Device found. Load data and start device";
         if (_device) _device.destroy();
         _device = new device();
         _device.setDisplay(new displayCanvas(_device, deviceInfo));
+        _device.setConnection(new hubConnection(_device, el('hubUrl').value));
+        _device.setSensors(new sensors(_device));
         _device.getDisplay().setCanvas(el('display'));
         _device.getDisplay().initDisplay();
 
-        let start = Math.PI * (1-0.3);
-        let end = Math.PI * (1+0.3);
-        let sweep = end - start;
-        const cx = 240;
-        const cy = 240;
+        // let start = Math.PI * (1-0.3);
+        // let end = Math.PI * (1+0.3);
+        // let sweep = end - start;
+        // const cx = 240;
+        // const cy = 240;
 
-        _device.getDisplay().drawArc(cx, cy, 210, start, end, 25, 'round', '#252525');
-        _device.getDisplay().drawArc(cx, cy, 210, start, start + sweep * 0.5, 25, 'round', "#e4cd36");
+        // _device.getDisplay().drawArc(cx, cy, 210, start, end, 25, 'round', '#252525');
+        // _device.getDisplay().drawArc(cx, cy, 210, start, start + sweep * 0.5, 25, 'round', "#e4cd36");
 
     }
     else {
@@ -241,6 +246,37 @@ el('readSettings').addEventListener("click", async () => {
 el('saveSettings').addEventListener("click", async () => {
 
 });
+
+// Simulate esp32 loop
+setInterval(() => {
+
+    if (!_device) return;
+
+    _device.process();
+
+        let start = Math.PI * (1-0.3);
+        let end = Math.PI * (1+0.3);
+        let sweep = end - start;
+        const cx = 240;
+        const cy = 240;
+
+        const sensorValue = _device.getSensors().getSensorData("engine.coolant-temp");
+        let tempValue = 0;
+        if (sensorValue) {
+            tempValue = sensorValue.value / 120;
+        }
+
+       // drawArc(x, y, radius, start, end, width, linecap, fillcolor, bordercolor, borderwidth) {
+
+        //clear
+        _device.getDisplay().drawArc(cx, cy, 210, start, end, 27, 'round', '#000');
+        //draw
+        _device.getDisplay().drawArc(cx, cy, 210, start, end, 25, 'round', '#252525');
+        _device.getDisplay().drawArc(cx, cy, 210, start, start + sweep * tempValue, 25, 'round', "#e4cd36");
+
+    //console.log("loop");
+
+}, 50);
 
 // // el('saveSettings').onclick=()=>run(async()=>{
     

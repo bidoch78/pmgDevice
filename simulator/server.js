@@ -92,7 +92,7 @@ const server = http.createServer(async (req, res) => {
     // ---------- SENSOR API ----------
     if (url.pathname === "/api/getdevicedata" && req.method === "PUT") {
         res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
-        res.end(JSON.stringify({ 'mac': '8a:14:a3:39:4d:2e', 'token': '', 'display': { 'round': true, 'width': 480, 'height': 480 }, 'find': true }));
+        res.end(JSON.stringify({ 'mac': '8a:14:a3:39:4d:2e', 'token': 'b0f2bc721c445f8683cfe15eb55f3018c860c6a7f7b91c0d1ac018126ca3ef60', 'display': { 'round': true, 'width': 480, 'height': 480 }, 'find': true }));
         return;
     }
 
