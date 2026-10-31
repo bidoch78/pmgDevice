@@ -15,6 +15,8 @@
             section{background:#1b2532;padding:16px;border-radius:10px;margin:16px 0}
             #error{color:#ffbf35;white-space:pre-wrap}
             .coninfo > label { display: inline; }
+            .gaugetitle { margin-top: 0; }
+            section.virtualgauge { text-align: center; }
             @font-face {
                 font-family: 'Dashboard';
                 src: url('DIN1451-36breit.ttf') format('truetype');
@@ -48,8 +50,8 @@
                 
             </section>
             
-            <section>
-                <h2>Virtual Screen</h2>
+            <section class="virtualgauge">
+                <h2 class="gaugetitle">Virtual Gauge</h2>
                 <canvas id="display"></canvas>
                 <label>Water Temp : <output id="tempValue">50</output> °C<br><input id="temp" type="range" min="0" max="130" step="1" value="50"></label>
             </section>

@@ -1,12 +1,12 @@
-import { Widget } from './widget.js';
+import { widget } from './widget.js';
 
-export class TextWidget extends Widget {
+export class textWidget extends widget {
 
     constructor(jsonData) {
         super(jsonData);
     }
 
-    draw(display) {
+    render(display, sensors) {
 
         
 

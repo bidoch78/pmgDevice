@@ -92,7 +92,34 @@ const server = http.createServer(async (req, res) => {
     // ---------- SENSOR API ----------
     if (url.pathname === "/api/getdevicedata" && req.method === "PUT") {
         res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
-        res.end(JSON.stringify({ 'mac': '8a:14:a3:39:4d:2e', 'token': 'b0f2bc721c445f8683cfe15eb55f3018c860c6a7f7b91c0d1ac018126ca3ef60', 'display': { 'round': true, 'width': 480, 'height': 480 }, 'find': true }));
+
+        const data = { 'mac': '8a:14:a3:39:4d:2e', 
+                        'token': 'b0f2bc721c445f8683cfe15eb55f3018c860c6a7f7b91c0d1ac018126ca3ef60', 
+                        'display': { 'round': true, 'width': 480, 'height': 480 }, 
+                        'find': true,
+                        'template': null,
+                        'images': []
+                    };
+
+        const dataFolder = `data/${data.mac}`;
+
+        try {   
+            const jsonText = fs.readFileSync(`${dataFolder}/template.json`, 'utf8');
+            data["template"] = JSON.parse(jsonText);
+        }
+        catch(err) {
+        }
+
+        const files = fs.readdirSync(`${dataFolder}/images`);
+        for (const file of files) {
+            const dataFile = fs.readFileSync(`${dataFolder}/images/${file}`);
+            data.images.push({
+                'name': file,
+                'data': `data:image/png;base64,${dataFile.toString('base64')}`
+            });
+        }
+
+        res.end(JSON.stringify(data));
         return;
     }
 
