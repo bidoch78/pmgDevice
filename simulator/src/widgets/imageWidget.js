@@ -19,64 +19,40 @@ export class imageWidget extends widget {
 
     render(display, sensors) {
 
-        const imgName = this.getParameter("name", null);
+        /** GET SENSOR VALUE */
+        let sValue = 0;
+        const sensorName = this.getSensorsUsed();
+        if (sensorName && sensorName.length) {
+            const sensorValue = sensors.getSensorData(sensorName[0]);
+            sValue = (sensorValue) ? sensorValue.value : 0;
+        }
+
+        this.resetRule();
+        const condRange = this.getParameter("cond-range", null);
+        if (condRange) this.addRule("range", widget.getByRange(sValue, condRange));
+        
+        // ------------------
+        // ------------------
+        
+        const imgName = this.getParameterBasedOnRule("name", null);
         if (!imgName) return;
 
         const img = this._device.getConfiguration().getImage(imgName);
         
         if (!img || !img.complete) return;
 
-        const colorByRange = this.getParameter("rangecolor");
-        const dispOnlyImg = !colorByRange;
-        const zoom = this.getParameter("zoom", 1);
+        const zoom = this.getParameterBasedOnRule("zoom", 1);
+        const x = this.getParameterBasedOnRule("left", 0);
+        const y = this.getParameterBasedOnRule("top", 0);
 
-        const x = this.getParameter("left", 0);
-        const y = this.getParameter("top", 0);
+        let colorIndex = this.getParameterBasedOnRule("_rangeindex", -1);
 
-        if (dispOnlyImg) {
+        if (colorIndex == -1) {
             display.drawImage(img, x, y, img.width * zoom, img.height * zoom);
             return;
         }
 
-        const sensorName = this.getSensorsUsed();
-        let sValue = null;
-        if (sensorName && sensorName.length) {
-            const sensorValue = sensors.getSensorData(sensorName[0]);
-            sValue = (sensorValue) ? sensorValue.value : 0;
-        }
-
-        /* rangecolor */
-        let rgb = null;
-        let colorIndex = -1;
-
-        for (let i = 0; i < colorByRange.length; i++) {
-
-            var colorByR = colorByRange[i];
-            if (colorByR.from === null) {
-                if (sValue < colorByR.to) {
-                    colorIndex = i;
-                    rgb = display.hexToRgb(colorByR.color);
-                    break;
-                }
-            }
-            else if (colorByR.to === null) {
-                if (sValue >= colorByR.from) {
-                    rgb = display.hexToRgb(colorByR.color);
-                    colorIndex = i;
-                    break;
-                }
-            }
-            else {
-                if (sValue >= colorByR.from && sValue < colorByR.to) {
-                    rgb = display.hexToRgb(colorByR.color);
-                    colorIndex = i;
-                    break;
-                }
-            }
-
-
-
-        }
+        const rgb = display.hexToRgb(this.getParameterBasedOnRule("color"));
 
         const imgTag = colorIndex;
         if (this._updateImgTag != imgTag && rgb) {

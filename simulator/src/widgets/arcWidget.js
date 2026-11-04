@@ -24,36 +24,47 @@ export class arcWidget extends widget {
     }
 
     render(display, sensors) {
-
-        let start = ((this.getParameter("start", 0)) * Math.PI / 180) - (Math.PI / 2);
-        let end = ((this.getParameter("end", 180)) * Math.PI / 180) - (Math.PI / 2);
-        const sweep = end - start;
         
-        const cx = this.getParameter("left", 0);
-        const cy = this.getParameter("top", 0);
-        const radius = this.getParameter("radius", 50);
-        const linecap = this.getParameter("linecap", "round");
-        const thickness = this.getParameter("thickness", 5);
-
-        //draw background
-        display.drawArc(cx, cy, radius, start, end, thickness, linecap, this.getParameter("bgcolor", "#252525"), this.getParameter("bordercolor"), this.getParameter("borderwidth"));
-
-        //draw sensor pos
+        /** GET SENSOR VALUE */
+        let sValue = 0;
         const sensorName = this.getSensorsUsed();
         if (sensorName && sensorName.length) {
-
             const sensorValue = sensors.getSensorData(sensorName[0]);
-            let sValue = (sensorValue) ? sensorValue.value : 0;
+            sValue = (sensorValue) ? sensorValue.value : 0;
+        }
 
-            const pct = this.getPercentageValueInInterval(sValue);
+        this.resetRule();
+        const condRange = this.getParameter("cond-range", null);
+        if (condRange) this.addRule("range", widget.getByRange(sValue, condRange));
 
-            if (this.getParameter("reverse", false)) {
-                display.drawArc(cx, cy, radius, end - (sweep * pct), end, thickness, linecap, this.getParameter("color", "#FFFFFF"));
-            }
-            else {
-                display.drawArc(cx, cy, radius, start, start + sweep * pct, thickness, linecap, this.getParameter("color", "#FFFFFF"));
-            }
+        // ------------------
+        // ------------------
 
+        let start = ((this.getParameterBasedOnRule("start", 0)) * Math.PI / 180) - (Math.PI / 2);
+        let end = ((this.getParameterBasedOnRule("end", 180)) * Math.PI / 180) - (Math.PI / 2);
+        const sweep = end - start;
+    
+        const cx = this.getParameterBasedOnRule("left", 0);
+        const cy = this.getParameterBasedOnRule("top", 0);
+        const radius = this.getParameterBasedOnRule("radius", 50);
+        const linecap = this.getParameterBasedOnRule("linecap", "round");
+        const thickness = this.getParameterBasedOnRule("thickness", 5);
+
+        let color = this.getParameterBasedOnRule("color", "#FFFFFF");
+        let bgColor = this.getParameterBasedOnRule("bgcolor", "#252525");
+        let borderColor = this.getParameterBasedOnRule("bordercolor");
+        let borderWidth = this.getParameterBasedOnRule("borderwidth");
+
+        //draw background
+        display.drawArc(cx, cy, radius, start, end, thickness, linecap, bgColor, borderColor, borderWidth);
+
+        const pct = this.getPercentageValueInInterval(sValue);
+
+        if (this.getParameter("reverse", false)) {
+            display.drawArc(cx, cy, radius, end - (sweep * pct), end, thickness, linecap, color);
+        }
+        else {
+            display.drawArc(cx, cy, radius, start, start + sweep * pct, thickness, linecap, color);
         }
 
     }

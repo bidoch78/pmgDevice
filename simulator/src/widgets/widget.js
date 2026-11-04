@@ -18,11 +18,40 @@ export class widget {
 
     constructor(widgetData) {
         this._data = widgetData;
+        this._rule = null;
     }
 
     getSensorsUsed() { return this.getParameter("sensors", null); }
 
     render(display, sensors) {}
+
+    resetRule() { this._rule = null; }
+
+    addRule(name, data) {
+        this._rule = { 'name': name, 'data': data };
+    }
+
+    getRule() { return this._rule; }
+
+    getParameterBasedOnRule(name, defaultValue) {
+        
+        if (!this._rule) return this.getParameter(name, defaultValue);
+
+        if (this._rule.name == "range") {
+
+            const rgData = this._rule.data.rangeitem;
+
+            if (name == "_rangeindex") return (this._rule && this._rule.data) ? this._rule.data.index : -1;
+
+            if (rgData[name] !== null && rgData[name] !== undefined) return rgData[name];
+
+            return this.getParameter(name, defaultValue);
+
+        }
+
+        return defaultValue;
+
+    }
 
     getParameter(name, defaultValue) {
         if (!this._data) return defaultValue;
@@ -42,6 +71,35 @@ export class widget {
         if (value > max) return 1;
 
         return (value - min) / (max - min);
+
+    }
+
+    static getByRange(value, range) {
+
+        if (!range) return { "index": -1, "rangeitem": null };
+
+        for (let i = 0; i < range.length; i++) {
+
+            var rangeItem = range[i];
+            if (rangeItem.from === null) {
+                if (value < rangeItem.to) {
+                    return { "index": i, "rangeitem": rangeItem };
+                }
+            }
+            else if (rangeItem.to === null) {
+                if (value >= rangeItem.from) {
+                    return { "index": i, "rangeitem": rangeItem };
+                }
+            }
+            else {
+                if (value >= rangeItem.from && value < rangeItem.to) {
+                    return { "index": i, "rangeitem": rangeItem };
+                }
+            }
+
+        }
+
+        return { "index": -1, "rangeitem": null };
 
     }
 
