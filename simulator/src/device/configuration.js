@@ -3,6 +3,7 @@ export class configuration {
     constructor(device) {
 
         this._device = device;
+        this._fontsInfo = new Map();
 
     }
 
@@ -32,5 +33,7 @@ export class configuration {
     }
 
     getImage(name) { }
+
+    getFont(name) { }
 
 }

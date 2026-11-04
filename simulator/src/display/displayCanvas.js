@@ -1,4 +1,4 @@
-import { display } from "./display.js";
+import { display, verticalAlign, horizontalAlign } from "./display.js";
 
 export class displayCanvas extends display {
 
@@ -108,11 +108,6 @@ export class displayCanvas extends display {
 
     }
 
-    measureText(font, text) { 
-        return { 'width': 0, 'height': 0 }; 
-    }
-
-
     drawRectangle(x, y, width, height, fillcolor, bordercolor, borderwidth, radius) {
 
         if (!this._ctxBufCanvas) return;
@@ -138,7 +133,11 @@ export class displayCanvas extends display {
 
     }
 
-    drawText(text, x, y, width, height, font, color, hAlign, vAlign) {
+    measureText(font, fontfamily, text) { 
+        return { 'width': 0, 'height': 0 }; 
+    }
+
+    drawText(text, x, y, width, height, font, fontfamily, color, hAlign, vAlign) {
 
         if (!this._ctxBufCanvas) return;
 
@@ -146,6 +145,45 @@ export class displayCanvas extends display {
         this._ctxBufCanvas.textBaseline = 'top';
         this._ctxBufCanvas.font = font;
         this._ctxBufCanvas.fillStyle = color;
+        
+        x += fontfamily.getHorizontalOffset();
+        y += fontfamily.getVerticalOffset();
+
+        if ((width && hAlign) || (height && vAlign)) {
+
+            const textMeasure = this._ctxBufCanvas.measureText(text);
+
+            if (width && hAlign) {
+
+                if (hAlign === horizontalAlign.CENTER) {
+                    x += (width - textMeasure.width) / 2;
+                }
+                else if (hAlign === horizontalAlign.RIGHT) {
+                    x -= fontfamily.getHorizontalOffset();
+                    x += width - textMeasure.width;
+                }
+
+            }
+
+            if (height && vAlign) {
+
+                const textTop = textMeasure.actualBoundingBoxAscent;
+                const textBottom = textMeasure.actualBoundingBoxDescent;
+
+                const textHeight = textBottom - textTop;
+
+                if (vAlign === verticalAlign.MIDDLE) {
+                    y += height / 2 - (textTop + textBottom) / 2;
+                }
+                else if (vAlign === verticalAlign.BOTTOM) {
+                    y -= fontfamily.getVerticalOffset();
+                    y += height - textHeight - textTop;
+                }
+
+            }
+
+        }
+     
         this._ctxBufCanvas.fillText(text, x, y);
 
     }

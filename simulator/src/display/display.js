@@ -1,5 +1,17 @@
 import { widget } from "../widgets/widget.js";
 
+export const horizontalAlign = Object.freeze({
+    LEFT: "left",
+    CENTER: "center",
+    RIGHT: "right"
+});
+
+export const verticalAlign = Object.freeze({
+    TOP: "top",
+    MIDDLE: "middle",
+    BOTTOM: "bottom"
+});
+
 export class display {
 
     constructor(device) {
@@ -55,7 +67,7 @@ export class display {
     drawImage(image, x, y, width, height) { }
 
     /* text functions */
-    measureText(font, text) { return { 'width': 0, 'height': 0 }; }
-    drawText(text, x, y, width, height, font, color, hAlign, vAlign) {}
+    measureText(font, fontfamily, text) { return { 'width': 0, 'height': 0 }; }
+    drawText(text, x, y, width, height, font, fontfamily, color, hAlign, vAlign) {}
 
 }

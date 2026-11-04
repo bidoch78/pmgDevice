@@ -1,5 +1,4 @@
 import { widget } from './widget.js';
-import { font } from '../display/font.js';
 
 export class textWidget extends widget {
 
@@ -29,12 +28,9 @@ export class textWidget extends widget {
         const height = this.getParameter("height", null);
 
         //Draw background
-        if (bgColor !== null && bgBorder !== null) {
-            console.log("draw rectangle");
-            display.drawRectangle(x, y, width, height, bgColor, bgBorder, bgBorderWidth, bgRadius);
-        }
+        if (bgColor !== null && bgBorder !== null) display.drawRectangle(x, y, width, height, bgColor, bgBorder, bgBorderWidth, bgRadius);
 
-        display.drawText(txt, x, y, width, height, txtFont, this.getParameter("color", 0));
+        display.drawText(txt, x, y, width, height, txtFont, fontToUse, this.getParameter("color", 0), this.getParameter("halign", null), this.getParameter("valign", null));
         
     }
 

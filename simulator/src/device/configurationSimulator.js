@@ -39,12 +39,17 @@ export class configurationSimulator extends configuration {
         const fontInfo = fontCanvas.extractFontInfo(name);
         if (!fontInfo) return null;       
 
+
+
         //Retrieve data from json
         for(const font of this._data.fonts) {
             if (font.name == fontInfo.family && font.data) {
                 const ft = new FontFace(font.name, `url(${font.data})`);
                 ft.load();
-                this._fonts.set(font.name, new fontCanvas(font.name, ft));
+                const cfont = new fontCanvas(font.name, ft);
+                const tmplData = this.getTemplate();
+                cfont.readFontInfo((tmplData && tmplData.fonts) ? tmplData.fonts : null);
+                this._fonts.set(font.name, cfont);
                 document.fonts.add(ft);
                 return this._fonts.get(font.name);
             }
