@@ -1,5 +1,5 @@
-import { widget } from "../widgets/widget.js";
 import { configuration } from "./configuration.js";
+import { fontCanvas} from "../display/fontCanvas.js"
 
 export class configurationSimulator extends configuration {
 
@@ -7,6 +7,7 @@ export class configurationSimulator extends configuration {
         super(device);
         this._data = deviceData;
         this._images = new Map();
+        this._fonts = new Map();
     }
 
     getTemplate() {
@@ -28,6 +29,28 @@ export class configurationSimulator extends configuration {
         }
 
         return null;
+
+    }
+
+    getFont(name) {
+
+        if (this._fonts.has(name)) return this._fonts.get(name);
+
+        const fontInfo = fontCanvas.extractFontInfo(name);
+        if (!fontInfo) return null;       
+
+        //Retrieve data from json
+        for(const font of this._data.fonts) {
+            if (font.name == fontInfo.family && font.data) {
+                const ft = new FontFace(font.name, `url(${font.data})`);
+                ft.load();
+                this._fonts.set(font.name, new fontCanvas(font.name, ft));
+                document.fonts.add(ft);
+                return this._fonts.get(font.name);
+            }
+        }
+
+        return null;        
 
     }
 

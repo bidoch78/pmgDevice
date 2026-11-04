@@ -17,24 +17,24 @@
             .coninfo > label { display: inline; }
             .gaugetitle { margin-top: 0; }
             section.virtualgauge { text-align: center; }
-            @font-face {
-                font-family: 'Dashboard';
-                src: url('DIN1451-36breit.ttf') format('truetype');
-            }
-
+            .header { display: flex;justify-content: space-between; gap: 20px; }
+            #hubUrl {  margin-top: 20px; }
         </style>
             
         </head>
         
     <body>
         <main>
-            <h1>Device TFT Simulator</h1>
+            <div class="header">
+                <h1>Device TFT Simulator</h1>
+                <label>Hub IP <input id="hubUrl" size="38" placeholder="ws://127.0.0.1:3000" value="ws://127.0.0.1:3000/ws/device"></label>
+            </div>
             <section>
 
                 <div class="coninfo">
+                    <label>Device <select id="devices"></select></label>
                     <label>MAC <input id="mac" placeholder="02:00:00:00:00:01" value="8a:14:a3:39:4d:2e"></label>
                     <label>Token <input id="token" placeholder="" value=""></label>
-                    <label>Hub IP <input id="hubUrl" size="38" placeholder="ws://127.0.0.1:3000" value="ws://127.0.0.1:3000/ws/device"></label>
                 </div>
                 <label>Screen <select id="screen">
                         <option data-round="" data-width="" data-height="">-</option>

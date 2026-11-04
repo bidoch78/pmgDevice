@@ -107,5 +107,47 @@ export class displayCanvas extends display {
             this._ctxBufCanvas.drawImage(image, x, y, width, height);
 
     }
+
+    measureText(font, text) { 
+        return { 'width': 0, 'height': 0 }; 
+    }
+
+
+    drawRectangle(x, y, width, height, fillcolor, bordercolor, borderwidth, radius) {
+
+        if (!this._ctxBufCanvas) return;
+
+        this._ctxBufCanvas.beginPath();
+
+        if (radius) {
+            this._ctxBufCanvas.roundRect(x, y, width, height, radius);
+        } else {
+            this._ctxBufCanvas.rect(x, y, width, height);
+        }
+
+        if (fillcolor) {
+            this._ctxBufCanvas.fillStyle = fillcolor;
+            this._ctxBufCanvas.fill();
+        }
+
+        if (bordercolor && borderwidth > 0) {
+            this._ctxBufCanvas.strokeStyle = bordercolor;
+            this._ctxBufCanvas.lineWidth = borderwidth;
+            this._ctxBufCanvas.stroke();
+        }
+
+    }
+
+    drawText(text, x, y, width, height, font, color, hAlign, vAlign) {
+
+        if (!this._ctxBufCanvas) return;
+
+        this._ctxBufCanvas.textAlign = 'left';
+        this._ctxBufCanvas.textBaseline = 'top';
+        this._ctxBufCanvas.font = font;
+        this._ctxBufCanvas.fillStyle = color;
+        this._ctxBufCanvas.fillText(text, x, y);
+
+    }
   
 }

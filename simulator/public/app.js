@@ -250,6 +250,23 @@ setInterval(() => {
 
 }, 50);
 
+// Update current list
+async function refreshDeviceList() {
+
+    const devicesList = await api('/api/getdevicelist', 'GET' );
+    
+    const selectDevices = el('devices');
+    for(const device of devicesList.devices) {
+        const option = document.createElement('option');
+        option.value = device.mac;
+        option.textContent = device.mac;
+        selectDevices.appendChild(option);
+    }
+
+}
+
+refreshDeviceList();
+
 // // el('saveSettings').onclick=()=>run(async()=>{
     
 // //     await api('/api/settings','PUT',{mac:el('mac').value,hubUrl:el('hubUrl').value,autoConnect:el('autoConnect').checked});await loadSettings();});

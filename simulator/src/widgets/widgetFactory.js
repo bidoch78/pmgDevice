@@ -11,7 +11,7 @@ export class widgetFactory {
         switch(widgetData.type) {
 
             case "arc": return new arcWidget(widgetData);
-            case "text": return new textWidget(widgetData);
+            case "text": return new textWidget(widgetData, device);
             case "image": return new imageWidget(widgetData, device);
 
         }

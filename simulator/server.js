@@ -16,12 +16,6 @@ const contentTypes = {
     ".ico": "image/x-icon"
 };
 
-//import {Device} from './device/Device.js';
-
-//const device=new Device(process.env.SIM_DATA_DIR||path.join(root,'data'));
-
-//await device.begin(defaultTemplate);
-
 function returnFile(res, relativePath) {
 
     const safePath = path.normalize(relativePath).replace(/^([.][.][/\\])+/, "");
@@ -89,6 +83,25 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    if (url.pathname === "/api/getdevicelist" && req.method === "GET") {
+
+        const data = { 'devices': [] };
+
+        const entries = fs.readdirSync(`data`, { withFileTypes: true });
+        for (const entry of entries) {
+            if (entry.isDirectory) {
+                //Read json
+                const jsonText = fs.readFileSync(`data/${entry.name}/config.json`, 'utf8');
+                data.devices.push(JSON.parse(jsonText));
+            }
+        }
+
+        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
+        res.end(JSON.stringify(data));
+        return;
+
+    }
+
     // ---------- SENSOR API ----------
     if (url.pathname === "/api/getdevicedata" && req.method === "PUT") {
         res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
@@ -98,7 +111,8 @@ const server = http.createServer(async (req, res) => {
                         'display': { 'round': true, 'width': 480, 'height': 480 }, 
                         'find': true,
                         'template': null,
-                        'images': []
+                        'images': [],
+                        'fonts': []
                     };
 
         const dataFolder = `data/${data.mac}`;
@@ -110,12 +124,21 @@ const server = http.createServer(async (req, res) => {
         catch(err) {
         }
 
-        const files = fs.readdirSync(`${dataFolder}/images`);
+        let files = fs.readdirSync(`${dataFolder}/images`);
         for (const file of files) {
             const dataFile = fs.readFileSync(`${dataFolder}/images/${file}`);
             data.images.push({
                 'name': file,
                 'data': `data:image/png;base64,${dataFile.toString('base64')}`
+            });
+        }
+
+        files = fs.readdirSync(`${dataFolder}/fonts`);
+        for (const file of files) {
+            const dataFile = fs.readFileSync(`${dataFolder}/fonts/${file}`);
+            data.fonts.push({
+                'name': path.parse(file).name,
+                'data': `data:font/ttf;base64,${dataFile.toString('base64')}`
             });
         }
 

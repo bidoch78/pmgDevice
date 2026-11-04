@@ -56,6 +56,7 @@ export class device {
             if (brightnessValue) sValue = brightnessValue.value * 100;
             if (sValue < 100) sValue = 50;
             
+            sValue = 100;
             this._display.setBrightness(sValue);
 
             this._display.beginFrame();

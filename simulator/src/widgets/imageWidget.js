@@ -28,12 +28,13 @@ export class imageWidget extends widget {
 
         const colorByRange = this.getParameter("rangecolor");
         const dispOnlyImg = !colorByRange;
+        const zoom = this.getParameter("zoom", 1);
 
         const x = this.getParameter("left", 0);
         const y = this.getParameter("top", 0);
 
         if (dispOnlyImg) {
-            display.drawImage(img, x, y);
+            display.drawImage(img, x, y, img.width * zoom, img.height * zoom);
             return;
         }
 
@@ -106,7 +107,7 @@ export class imageWidget extends widget {
 
         }
 
-        if (this._updateImgBuffer) display.drawImage(this._updateImgBuffer, x, y);
+        if (this._updateImgBuffer) display.drawImage(this._updateImgBuffer, x, y, img.width * zoom, img.height * zoom);
 
     }
 
