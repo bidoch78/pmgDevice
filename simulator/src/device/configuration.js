@@ -32,6 +32,10 @@ export class configuration {
 
     }
 
+    getMac() { }
+    getToken() { }
+    setToken(token) { }
+
     getImage(name) { }
 
     getFont(name) { }

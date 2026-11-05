@@ -5,6 +5,7 @@ import { hubConnection } from '../src/device/hubConnection.js';
 import { sensors } from '../src/device/sensors.js';
 
 let _device = null;
+let _devicesList = null;
 
 const el=id=>document.getElementById(id);
 
@@ -212,20 +213,31 @@ async function api(url, method='GET', data) {
 
 // // }
 
+function configEvent(type, data) {
+    if (type == "rec_token") {
+        el('token').value = data;
+        api('/api/setdeviceconfig', 'POST', { 'mac': el('mac').value, 'token': data } );
+    }
+}
+
 el('readSettings').addEventListener("click", async () => {
 
-    const deviceInfo = await api('/api/getdevicedata', 'PUT', { 'mac': el('mac').value } );
+    const deviceData = getCurrentMACSelected();
+
+    el('mac').value = deviceData.mac;
+    el('token').value = deviceData.token;
+
+    const deviceInfo = await api('/api/getdevicedata', 'POST', { 'mac': deviceData.mac } );
 
     if (deviceInfo.find) {
 
-        el('token').value = deviceInfo.token;
         el('error').textContent = "Device found. Load data and start device";
         if (_device) _device.destroy();
         _device = new device();
         _device.setDisplay(new displayCanvas(_device, deviceInfo.display));
         _device.setConnection(new hubConnection(_device, el('hubUrl').value));
         _device.setSensors(new sensors(_device));
-        _device.setConfiguration(new configurationSimulator(_device, deviceInfo));
+        _device.setConfiguration(new configurationSimulator(_device, deviceInfo, configEvent));
         _device.getDisplay().setCanvas(el('display'));
         _device.initialize();
     }
@@ -254,16 +266,27 @@ setInterval(() => {
 async function refreshDeviceList() {
 
     const devicesList = await api('/api/getdevicelist', 'GET' );
-    
     const selectDevices = el('devices');
+
+    _devicesList = {};
+
     for(const device of devicesList.devices) {
+
+        _devicesList[device.mac] = device;
+
         const option = document.createElement('option');
         option.value = device.mac;
         option.textContent = device.mac;
         selectDevices.appendChild(option);
+
     }
 
-}
+};
+
+function getCurrentMACSelected() {
+    const selectedDevice = el('devices').value;
+    return _devicesList[selectedDevice] ?? null;
+};
 
 refreshDeviceList();
 

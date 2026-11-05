@@ -3,15 +3,26 @@ import { fontCanvas} from "../display/fontCanvas.js"
 
 export class configurationSimulator extends configuration {
 
-    constructor(device, deviceData) {
+    constructor(device, deviceData, events) {
         super(device);
         this._data = deviceData;
         this._images = new Map();
         this._fonts = new Map();
+        this._events = events;
     }
 
     getTemplate() {
         return this._data ? this._data.template : null;
+    }
+
+    getMac() { return this._data.mac ?? ""; }
+    getToken() { return this._data.token ?? ""; }
+
+    setToken(token) { 
+        
+        this._data.token = token;
+        this._events("rec_token", token);
+
     }
 
     getImage(name) {
@@ -31,15 +42,13 @@ export class configurationSimulator extends configuration {
         return null;
 
     }
-
+    
     getFont(name) {
 
         if (this._fonts.has(name)) return this._fonts.get(name);
 
         const fontInfo = fontCanvas.extractFontInfo(name);
-        if (!fontInfo) return null;       
-
-
+        if (!fontInfo) return null;
 
         //Retrieve data from json
         for(const font of this._data.fonts) {

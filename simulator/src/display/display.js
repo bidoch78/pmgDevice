@@ -51,6 +51,7 @@ export class display {
     clearDisplay(color) { }
 
     hexToRgb(hex) {
+        if (!hex) return { 'r': 0, 'g': 0, 'b': 0 };
         hex = hex.replace('#', '');
         return {
             r: parseInt(hex.substring(0, 2), 16),

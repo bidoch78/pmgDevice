@@ -21,15 +21,21 @@ export class imageWidget extends widget {
 
         /** GET SENSOR VALUE */
         let sValue = 0;
+        let noSensor = false;
         const sensorName = this.getSensorsUsed();
+
         if (sensorName && sensorName.length) {
             const sensorValue = sensors.getSensorData(sensorName[0]);
             sValue = (sensorValue) ? sensorValue.value : 0;
+            noSensor = !sensorValue;
         }
 
         this.resetRule();
-        const condRange = this.getParameter("cond-range", null);
-        if (condRange) this.addRule("range", widget.getByRange(sValue, condRange));
+
+        if (!noSensor) {
+            const condRange = this.getParameter("cond-range", null);
+            if (condRange) this.addRule("range", widget.getByRange(sValue, condRange));
+        }
         
         // ------------------
         // ------------------
@@ -46,6 +52,7 @@ export class imageWidget extends widget {
         const y = this.getParameterBasedOnRule("top", 0);
 
         let colorIndex = this.getParameterBasedOnRule("_rangeindex", -1);
+        if (noSensor) colorIndex = -2;
 
         if (colorIndex == -1) {
             display.drawImage(img, x, y, img.width * zoom, img.height * zoom);

@@ -1,4 +1,4 @@
-import * as CryptoJS from 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/+esm';
+import * as CryptoJS from '../../crypto-js@4.2.0+esm.js';
 
 export class hubConnection {
 
@@ -11,6 +11,8 @@ export class hubConnection {
         this._ws = null;
 
         this._nonce = null;
+        this._pairingCode = null;
+        this._waitingPairing = false;
 
         this._pingInterval = 0;
         this._lastConn = 0;
@@ -39,13 +41,23 @@ export class hubConnection {
     generateNonce() {
         const bytes = new Uint8Array(32);
         crypto.getRandomValues(bytes);
-        return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+        return btoa(String.fromCharCode(...bytes))
+                    .replace(/\+/g, "-")
+                    .replace(/\//g, "_")
+                    .replace(/=+$/, "");
     }
 
+    pairingMode() { return this._waitingPairing; }
+    getPairingCode() { return this._pairingCode; }
+    
     getAuthMessage() {
 
-        const token = 'b0f2bc721c445f8683cfe15eb55f3018c860c6a7f7b91c0d1ac018126ca3ef60';
-        const dataAuth = { 'type': "device.connect", 'data': { 'mac': '8a:14:a3:39:4d:2e' } };
+        const token = this._device.getConfiguration().getToken();
+        const dataAuth = { 'type': "device.connect", 'data': { 'mac': this._device.getConfiguration().getMac() } };
+        
+        this._pairingCode = String(Math.floor(Math.random() * 100000000)).padStart(8, '0');
+
+        dataAuth.data.pairingCode = this._pairingCode;
 
         if (token) {
 
@@ -109,11 +121,23 @@ export class hubConnection {
                     break;
 
                 case "device.authenticated":
+                    this._waitingPairing = false;
+                    if (msg.data.token) {
+                        //save the token
+                        this._device.getConfiguration().setToken(msg.data.token);
+                    }
                     ws.send(JSON.stringify({ type: "sensors.read", data : this._device.getSensors().getSensorsUsed() }));
                     break;
 
                 case "sensors.value":
                     this._device.getSensors().readSensors(msg.data);
+                    break;
+
+                case "pairing.pending":
+                    this._waitingPairing = true;
+                    break;
+
+                case "pairing.rejected":
                     break;
 
             }

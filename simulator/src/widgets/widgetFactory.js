@@ -13,7 +13,7 @@ export class widgetFactory {
             case "arc": return new arcWidget(widgetData);
             case "text": return new textWidget(widgetData, device);
             case "image": return new imageWidget(widgetData, device);
-
+        
         }
 
         return null;

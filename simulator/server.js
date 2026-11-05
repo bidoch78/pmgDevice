@@ -54,6 +54,42 @@ function isWebFile(relativePath) {
 
 }
 
+function readJsonBody(req) {
+
+    return new Promise((resolve, reject) => {
+    
+        let body = "";
+
+        req.on("data", chunk => {
+             
+            body += chunk;
+
+            if (body.length > 1024 * 64) {
+                reject(new Error("Payload too big"));
+                req.destroy();
+            }
+
+        });
+
+        req.on("end", () => {
+            try {
+                 resolve(body ? JSON.parse(body) : {});
+            } catch {
+                reject(new Error("JSON invalide"));
+            }
+        });
+
+        req.on("error", reject);
+
+    });
+
+}
+
+function sendJson(res, statusCode, data) {
+    res.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
+    res.end(JSON.stringify(data));
+}
+
 const server = http.createServer(async (req, res) => {
     
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
@@ -96,24 +132,39 @@ const server = http.createServer(async (req, res) => {
             }
         }
 
-        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
-        res.end(JSON.stringify(data));
+        sendJson(res, 200, data);
         return;
 
     }
 
-    // ---------- SENSOR API ----------
-    if (url.pathname === "/api/getdevicedata" && req.method === "PUT") {
-        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-cache','Connection':'keep-alive'});
+    // ---------- API ----------
+    if (url.pathname === "/api/getdevicedata" && req.method === "POST") {
 
-        const data = { 'mac': '8a:14:a3:39:4d:2e', 
-                        'token': 'b0f2bc721c445f8683cfe15eb55f3018c860c6a7f7b91c0d1ac018126ca3ef60', 
+        const data = { 'mac': null, 
+                        'token': null, 
                         'display': { 'round': true, 'width': 480, 'height': 480 }, 
                         'find': true,
                         'template': null,
                         'images': [],
                         'fonts': []
                     };
+
+        try {
+
+            const body = await readJsonBody(req);
+            
+            data.mac = body.mac;
+            
+            if (fs.existsSync(`data/${data.mac}/config.json`)) {
+                const jsonText = fs.readFileSync(`data/${data.mac}/config.json`, 'utf8');
+                const configData = JSON.parse(jsonText);
+                data.token = configData.token;
+            }
+
+        } catch (error) {
+            sendJson(res, 400, { error: error.message });
+            return;
+        }
 
         const dataFolder = `data/${data.mac}`;
 
@@ -142,29 +193,44 @@ const server = http.createServer(async (req, res) => {
             });
         }
 
-        res.end(JSON.stringify(data));
+        sendJson(res, 200, data);
         return;
     }
 
-//   if(url.pathname==='/api/events'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache','Connection':'keep-alive'});res.write(`data: ${JSON.stringify({type:'snapshot',data:{sensors:Object.fromEntries(device.sensors.values),state:device.connection.state}})}\n\n`);clients.add(res);req.on('close',()=>clients.delete(res));return;}
-//   if(url.pathname==='/api/settings'&&req.method==='GET')return send(res,200,{...device.settings,hasToken:!!device.token,connectionState:device.connection.state});
-//   if(url.pathname==='/api/settings'&&req.method==='PUT'){await device.updateSettings(await body(req));return send(res,200,{ok:true});}
+    if (url.pathname === "/api/setdeviceconfig" && req.method === "POST") {
 
-    //if(url.pathname === '/api/token' && req.method === 'PUT'){await device.setToken((await body(req)).token);return send(res,200,{ok:true});}
+        try {
 
-    //if(url.pathname === '/api/token' && req.method === 'DELETE'){await device.clearToken();return send(res,200,{ok:true});}
+            const body = await readJsonBody(req);
+            
+            let cfgData = null;
 
-    //if(url.pathname === '/api/template' && req.method === 'GET')
-    //    return send(res, 200, device.template);
+            if (!fs.existsSync(`data/${body.mac}/config.json`)) {
+                const jsonText = fs.readFileSync(`data/${data.mac}/config.json`, 'utf8');
+                cfgData = JSON.parse(jsonText);
+            }
+            else {
+                cfgData = {
+                    "mac": body.mac,
+                    "token": "",
+                    "name": ""
+                };
+            }
 
-//   if(url.pathname==='/api/template'&&req.method==='PUT'){await device.updateTemplate(await body(req));return send(res,200,{ok:true});}
-//   if(url.pathname==='/api/connect'&&req.method==='POST'){device.connect();return send(res,200,{ok:true});}
-//   if(url.pathname==='/api/disconnect'&&req.method==='POST'){device.disconnect();return send(res,200,{ok:true});}
-//   if(url.pathname==='/api/sensor'&&req.method==='POST'){const {id,value}=await body(req);if(typeof id!=='string'||!id||typeof value!=='number'||!Number.isFinite(value))throw Error('Invalid sensor');device.sensors.update(id,value);return send(res,200,{ok:true});}
-//   if(url.pathname.startsWith('/api/'))return send(res,404,{error:'Not found'});
-//   const name=url.pathname==='/'?'/public/index.html':url.pathname;
-//   if(!name.startsWith('/public/')&&!name.startsWith('/src/'))return send(res,404,{error:'Not found'});
-//   const file=path.resolve(root,'.'+name);if(!file.startsWith(root+path.sep))throw Error('Invalid path');const data=await readFile(file);res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','X-Content-Type-Options':'nosniff'});res.end(data);
+            if (Object.hasOwn(body, 'token')) cfgData.token = body.token;
+
+            fs.mkdirSync(path.dirname(`data/${body.mac}`), { recursive: true });
+            fs.writeFileSync(`data/${body.mac}/config.json`, JSON.stringify(cfgData, null, 2), 'utf8');
+
+            sendJson(res, 200, {});
+
+        } catch (error) {
+            sendJson(res, 400, { error: error.message });
+        }
+
+        return;
+
+    }
 
     res.writeHead(404);
     res.end("not found");

@@ -65,6 +65,33 @@ export class device {
             // Draw widget
             for(const w of this._widgets) w.render(this._display, this._sensors);
 
+            if (this._connection && this._connection.pairingMode()) {
+                
+                const screenInfo = this._display.getScreenInfo();
+
+                //Display pairing code
+                const pairingData = {
+                    "type": "text",
+                    "sensors": [],
+                    "top": (screenInfo.height - 80) / 2,
+                    "left": (screenInfo.width - 300) / 2,
+                    "width": 300,
+                    "height": 80,
+                    "text": this._connection.getPairingCode(),
+                    "color": "#FF0000",
+                    "font": "400 48px DIN1451-36breit",
+                    "halign": "center",
+                    "valign": "middle",
+                    "bgcolor": "#000000",
+                    "bgborder": "#FF0000",
+                    "bgborderwidth": 2,
+                    "bgradius": 10
+                };
+                const pairingWidget = widgetFactory.create(pairingData, this);
+                pairingWidget.render(this._display);
+
+            }
+
             this._display.endFrame();
 
         }
