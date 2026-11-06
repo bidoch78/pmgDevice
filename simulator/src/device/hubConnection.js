@@ -23,6 +23,9 @@ export class hubConnection {
         this.PONG_TIMEOUT = 2000;    // 2s
         this.CONN_ATTEMPT_INTERVAL = 2000;
 
+        this._identificationRequired = null;
+        this.IDENTIFICATIONREQUIRED_INTERVAL = 4000; // 4s
+
     }
 
     disconnect(close = true) {
@@ -140,11 +143,17 @@ export class hubConnection {
                 case "pairing.rejected":
                     break;
 
+                case "device.identify":
+                    this._identificationRequired = Date.now();
+                    break;
+
             }
 
         };
 
     }
+
+    isIdentificationIsRequired() { return !!this._identificationRequired; }
 
     isConnected() {
         return this._ws && this._ws.readyState === WebSocket.OPEN;
@@ -179,6 +188,8 @@ export class hubConnection {
         if (!this._ws) {
             if ((execNow - this._lastConn) > this.CONN_ATTEMPT_INTERVAL) this.connect();
         }
+
+        if (this._identificationRequired && (execNow - this._identificationRequired) > this.IDENTIFICATIONREQUIRED_INTERVAL) this._identificationRequired = null;
 
     }
 
